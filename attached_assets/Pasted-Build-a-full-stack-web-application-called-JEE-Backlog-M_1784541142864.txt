@@ -1,0 +1,575 @@
+Build a full-stack web application called "JEE Backlog Manager".
+
+The purpose of this application is to help a JEE aspirant manage lecture backlogs for both Class 11 and Class 12 separately. This is NOT a task manager or to-do list. It is specifically a lecture backlog tracker.
+
+========================
+TECH STACK
+========================
+
+Use:
+
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- shadcn/ui
+- Node.js
+- Express
+- SQLite using Prisma ORM
+
+Store everything permanently inside SQLite.
+
+DO NOT use localStorage except for temporary UI preferences.
+
+The application should work completely offline after installation.
+
+Use a responsive layout.
+
+Support Light Mode and Dark Mode.
+
+========================
+GENERAL STRUCTURE
+========================
+
+There are only two classes.
+
+Class 11
+Class 12
+
+Each class contains exactly three subjects.
+
+Physics
+Chemistry
+Mathematics
+
+Each subject contains unlimited chapters.
+
+Each chapter stores lecture information.
+
+========================
+DATABASE STRUCTURE
+========================
+
+Create proper relational database tables.
+
+Class
+- id
+- name
+
+Subject
+- id
+- classId
+- name
+
+Chapter
+- id
+- subjectId
+- name
+- totalLectures
+- completedLectures
+- remainingLectures
+- createdAt
+- updatedAt
+
+History
+- id
+- chapterId
+- action
+- amount
+- previousValue
+- newValue
+- note
+- createdAt
+
+DailyProgress
+- id
+- date
+- completedToday
+
+========================
+RULES
+========================
+
+Remaining lectures should NEVER become negative.
+
+Completed lectures should NEVER exceed Total lectures.
+
+Whenever completed lectures increase,
+
+Remaining = Total - Completed
+
+Whenever total lectures increase,
+
+Remaining automatically updates.
+
+Never calculate incorrectly.
+
+Always validate user input.
+
+========================
+HOME DASHBOARD
+========================
+
+Create a professional dashboard.
+
+Display cards.
+
+Card 1
+
+Total Remaining Lectures
+
+Card 2
+
+Total Completed Lectures
+
+Card 3
+
+Today's Completed Lectures
+
+Card 4
+
+This Week Completed Lectures
+
+Card 5
+
+Overall Completion Percentage
+
+Card 6
+
+Current Study Streak
+
+Card 7
+
+Last Activity
+
+Also display
+
+Overall Progress Bar
+
+Percentage
+
+Total Chapters
+
+Pending Chapters
+
+Completed Chapters
+
+========================
+CLASS VIEW
+========================
+
+Sidebar
+
+Class 11
+
+Physics
+Chemistry
+Mathematics
+
+Class 12
+
+Physics
+Chemistry
+Mathematics
+
+Clicking opens chapter list.
+
+========================
+CHAPTER PAGE
+========================
+
+Each chapter card displays
+
+Chapter Name
+
+Total Lectures
+
+Completed Lectures
+
+Remaining Lectures
+
+Progress Bar
+
+Completion Percentage
+
+Buttons
+
+Complete Lecture
+
+Add Lectures
+
+Edit
+
+Delete
+
+========================
+ADDING A CHAPTER
+========================
+
+Popup Form
+
+Chapter Name
+
+Total Lectures
+
+Initially
+
+Completed = 0
+
+Remaining = Total
+
+Validate duplicate chapter names inside same subject.
+
+========================
+ADDING LECTURES
+========================
+
+Popup
+
+Add Number
+
+Example
+
+Current Total = 20
+
+User adds 4
+
+New Total = 24
+
+Completed remains same
+
+Remaining automatically updates.
+
+History must record
+
+Added 4 lectures
+
+========================
+COMPLETING LECTURES
+========================
+
+Popup
+
+Enter number completed today.
+
+Example
+
+Completed
+
+8
+
+User completes
+
+3
+
+Completed becomes
+
+11
+
+Remaining updates
+
+History saves
+
+Completed 3 lectures
+
+Update Daily Progress.
+
+========================
+EDIT CHAPTER
+========================
+
+Allow editing
+
+Chapter Name
+
+Total Lectures
+
+Validate
+
+Completed cannot exceed Total.
+
+========================
+DELETE CHAPTER
+========================
+
+Confirmation dialog.
+
+Deleting chapter also deletes associated history.
+
+========================
+SEARCH
+========================
+
+Search instantly by chapter name.
+
+========================
+FILTERS
+========================
+
+Pending
+
+Completed
+
+Physics
+
+Chemistry
+
+Mathematics
+
+Class 11
+
+Class 12
+
+========================
+SORTING
+========================
+
+Alphabetical
+
+Remaining Highest
+
+Remaining Lowest
+
+Recently Updated
+
+Recently Created
+
+========================
+HISTORY PAGE
+========================
+
+Every operation automatically creates history.
+
+Example
+
+20 Jul 2026
+
+Completed 3 lectures
+
+Physics
+
+Rotation
+
+--------------------------------
+
+20 Jul 2026
+
+Added 2 lectures
+
+Chemistry
+
+Electrochemistry
+
+--------------------------------
+
+19 Jul 2026
+
+Created chapter
+
+Vectors
+
+Allow filtering history
+
+Today
+
+This Week
+
+This Month
+
+All
+
+========================
+CALENDAR PAGE
+========================
+
+Create a GitHub-style contribution heatmap.
+
+Every date displays
+
+Number of lectures completed.
+
+Color intensity increases with more lectures.
+
+Clicking a date opens popup.
+
+Example
+
+20 July
+
+Physics
+
+Rotation
+
+Completed 3
+
+Chemistry
+
+Electrochemistry
+
+Completed 2
+
+========================
+STATISTICS PAGE
+========================
+
+Charts
+
+Overall Completion
+
+Subject Completion
+
+Class Completion
+
+Weekly Progress
+
+Monthly Progress
+
+Top 10 Most Pending Chapters
+
+Recently Completed Chapters
+
+========================
+UNDO
+========================
+
+Provide Undo Last Action.
+
+Undo only the most recent action.
+
+Restore database correctly.
+
+========================
+BACKUP
+========================
+
+Settings page
+
+Export Database
+
+Downloads JSON backup.
+
+Import Database
+
+Restores everything.
+
+Ask confirmation before replacing existing data.
+
+========================
+SETTINGS
+========================
+
+Dark Mode
+
+Light Mode
+
+Reset Entire Database
+
+Confirmation required.
+
+========================
+UI DESIGN
+========================
+
+Modern minimal UI.
+
+Rounded cards.
+
+Smooth animations.
+
+Professional spacing.
+
+No clutter.
+
+Sticky sidebar.
+
+Responsive.
+
+Desktop first.
+
+Mobile supported.
+
+========================
+VALIDATIONS
+========================
+
+No empty chapter names.
+
+No duplicate chapter names in same subject.
+
+No negative numbers.
+
+No decimals.
+
+No invalid edits.
+
+No remaining below zero.
+
+No completed above total.
+
+========================
+PERFORMANCE
+========================
+
+Fast loading.
+
+Efficient queries.
+
+Avoid unnecessary re-renders.
+
+========================
+CODE QUALITY
+========================
+
+Use reusable components.
+
+Separate API routes.
+
+Proper folder structure.
+
+Strong TypeScript typing.
+
+Comments only where necessary.
+
+No duplicated code.
+
+========================
+EXTRA QUALITY FEATURES
+========================
+
+Toast notifications.
+
+Loading skeletons.
+
+Confirmation dialogs.
+
+Keyboard shortcuts.
+
+Ctrl + K
+
+Global Search
+
+Ctrl + Z
+
+Undo
+
+Auto focus forms.
+
+Escape closes dialogs.
+
+========================
+FINAL REQUIREMENT
+========================
+
+The application should feel like a polished productivity application similar in quality to Notion or Linear.
+
+It must be production-ready, maintainable, and scalable.
+
+Do not generate placeholder code.
+
+Implement every feature completely.
+
+Do not leave TODO comments.
+
+Ensure calculations remain accurate after every operation.
+
+Test edge cases before finishing.

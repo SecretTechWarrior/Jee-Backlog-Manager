@@ -3,20 +3,38 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: JEE Backlog Manager API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: classes
+    description: Classes and subjects
+  - name: chapters
+    description: Chapter management
+  - name: history
+    description: History and undo
+  - name: dashboard
+    description: Dashboard statistics
+  - name: calendar
+    description: Calendar heatmap
+  - name: statistics
+    description: Statistics and charts
+  - name: search
+    description: Search
+  - name: backup
+    description: Backup and restore
+  - name: settings
+    description: Settings
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +42,354 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /classes:
+    get:
+      operationId: getClasses
+      tags: [classes]
+      summary: Get all classes with subjects and stats
+      responses:
+        "200":
+          description: List of classes with subjects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ClassWithSubjects"
+
+  /subjects/{subjectId}/chapters:
+    get:
+      operationId: getChaptersBySubject
+      tags: [chapters]
+      summary: Get chapters for a subject (supports ?search, ?filter, ?sort query params)
+      parameters:
+        - in: path
+          name: subjectId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of chapters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Chapter"
+    post:
+      operationId: createChapter
+      tags: [chapters]
+      summary: Create a chapter in a subject
+      parameters:
+        - in: path
+          name: subjectId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChapterInput"
+      responses:
+        "201":
+          description: Created chapter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Chapter"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /chapters/{id}:
+    put:
+      operationId: updateChapter
+      tags: [chapters]
+      summary: Update a chapter
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChapterUpdate"
+      responses:
+        "200":
+          description: Updated chapter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Chapter"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteChapter
+      tags: [chapters]
+      summary: Delete a chapter and its history
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /chapters/{id}/complete:
+    post:
+      operationId: completeLectures
+      tags: [chapters]
+      summary: Mark lectures as completed
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LectureCompletion"
+      responses:
+        "200":
+          description: Updated chapter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Chapter"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /chapters/{id}/add-lectures:
+    post:
+      operationId: addLectures
+      tags: [chapters]
+      summary: Add lectures to total
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LectureAddition"
+      responses:
+        "200":
+          description: Updated chapter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Chapter"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /history:
+    get:
+      operationId: getHistory
+      tags: [history]
+      summary: Get history (supports ?filter=today|this_week|this_month|all query param)
+      responses:
+        "200":
+          description: List of history entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HistoryEntry"
+
+  /history/undo:
+    post:
+      operationId: undoLastAction
+      tags: [history]
+      summary: Undo the last action
+      responses:
+        "200":
+          description: Undo successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UndoResult"
+        "400":
+          description: Nothing to undo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [dashboard]
+      summary: Get dashboard statistics
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /calendar:
+    get:
+      operationId: getCalendar
+      tags: [calendar]
+      summary: Get calendar heatmap data (supports ?year query param)
+      responses:
+        "200":
+          description: Calendar heatmap data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CalendarDay"
+
+  /calendar/{date}:
+    get:
+      operationId: getCalendarDayDetail
+      tags: [calendar]
+      summary: Get detail for a specific date (YYYY-MM-DD)
+      parameters:
+        - in: path
+          name: date
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Day detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalendarDayDetail"
+
+  /statistics:
+    get:
+      operationId: getStatistics
+      tags: [statistics]
+      summary: Get detailed statistics
+      responses:
+        "200":
+          description: Statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Statistics"
+
+  /search:
+    get:
+      operationId: searchChapters
+      tags: [search]
+      summary: Search chapters globally (supports ?q, ?filter, ?sort query params)
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChapterWithContext"
+
+  /backup/export:
+    get:
+      operationId: exportData
+      tags: [backup]
+      summary: Export all data as JSON
+      responses:
+        "200":
+          description: Full data export
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BackupData"
+
+  /backup/import:
+    post:
+      operationId: importData
+      tags: [backup]
+      summary: Import data from JSON backup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BackupData"
+      responses:
+        "200":
+          description: Import successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: Invalid backup
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /settings/reset:
+    delete:
+      operationId: resetDatabase
+      tags: [settings]
+      summary: Reset entire database (keeps classes and subjects)
+      responses:
+        "200":
+          description: Reset successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +400,474 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+        - message
+
+    Class:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+      required:
+        - id
+        - name
+
+    Subject:
+      type: object
+      properties:
+        id:
+          type: integer
+        classId:
+          type: integer
+        name:
+          type: string
+      required:
+        - id
+        - classId
+        - name
+
+    ClassWithSubjects:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        subjects:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubjectWithStats"
+      required:
+        - id
+        - name
+        - subjects
+
+    SubjectWithStats:
+      type: object
+      properties:
+        id:
+          type: integer
+        classId:
+          type: integer
+        name:
+          type: string
+        totalChapters:
+          type: integer
+        completedChapters:
+          type: integer
+        totalLectures:
+          type: integer
+        completedLectures:
+          type: integer
+        remainingLectures:
+          type: integer
+      required:
+        - id
+        - classId
+        - name
+        - totalChapters
+        - completedChapters
+        - totalLectures
+        - completedLectures
+        - remainingLectures
+
+    Chapter:
+      type: object
+      properties:
+        id:
+          type: integer
+        subjectId:
+          type: integer
+        name:
+          type: string
+        totalLectures:
+          type: integer
+        completedLectures:
+          type: integer
+        remainingLectures:
+          type: integer
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - subjectId
+        - name
+        - totalLectures
+        - completedLectures
+        - remainingLectures
+        - createdAt
+        - updatedAt
+
+    ChapterWithContext:
+      type: object
+      properties:
+        id:
+          type: integer
+        subjectId:
+          type: integer
+        name:
+          type: string
+        totalLectures:
+          type: integer
+        completedLectures:
+          type: integer
+        remainingLectures:
+          type: integer
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        subjectName:
+          type: string
+        className:
+          type: string
+        classId:
+          type: integer
+      required:
+        - id
+        - subjectId
+        - name
+        - totalLectures
+        - completedLectures
+        - remainingLectures
+        - createdAt
+        - updatedAt
+        - subjectName
+        - className
+        - classId
+
+    ChapterInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        totalLectures:
+          type: integer
+          minimum: 1
+      required:
+        - name
+        - totalLectures
+
+    ChapterUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        totalLectures:
+          type: integer
+          minimum: 1
+
+    LectureCompletion:
+      type: object
+      properties:
+        amount:
+          type: integer
+          minimum: 1
+        note:
+          type: ["string", "null"]
+      required:
+        - amount
+
+    LectureAddition:
+      type: object
+      properties:
+        amount:
+          type: integer
+          minimum: 1
+        note:
+          type: ["string", "null"]
+      required:
+        - amount
+
+    HistoryEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        chapterId:
+          type: integer
+        action:
+          type: string
+        amount:
+          type: ["integer", "null"]
+        previousValue:
+          type: ["integer", "null"]
+        newValue:
+          type: ["integer", "null"]
+        note:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        chapterName:
+          type: string
+        subjectName:
+          type: string
+        className:
+          type: string
+      required:
+        - id
+        - chapterId
+        - action
+        - createdAt
+        - chapterName
+        - subjectName
+        - className
+
+    UndoResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        chapter:
+          $ref: "#/components/schemas/Chapter"
+      required:
+        - success
+        - message
+        - chapter
+
+    DashboardStats:
+      type: object
+      properties:
+        totalRemaining:
+          type: integer
+        totalCompleted:
+          type: integer
+        completedToday:
+          type: integer
+        completedThisWeek:
+          type: integer
+        overallPercentage:
+          type: number
+        currentStreak:
+          type: integer
+        lastActivity:
+          type: ["string", "null"]
+        totalChapters:
+          type: integer
+        pendingChapters:
+          type: integer
+        completedChapters:
+          type: integer
+        totalLectures:
+          type: integer
+      required:
+        - totalRemaining
+        - totalCompleted
+        - completedToday
+        - completedThisWeek
+        - overallPercentage
+        - currentStreak
+        - totalChapters
+        - pendingChapters
+        - completedChapters
+        - totalLectures
+
+    CalendarDay:
+      type: object
+      properties:
+        date:
+          type: string
+        count:
+          type: integer
+      required:
+        - date
+        - count
+
+    CalendarDayDetail:
+      type: object
+      properties:
+        date:
+          type: string
+        total:
+          type: integer
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/CalendarDayEntry"
+      required:
+        - date
+        - total
+        - entries
+
+    CalendarDayEntry:
+      type: object
+      properties:
+        subjectName:
+          type: string
+        className:
+          type: string
+        chapterName:
+          type: string
+        completed:
+          type: integer
+      required:
+        - subjectName
+        - className
+        - chapterName
+        - completed
+
+    Statistics:
+      type: object
+      properties:
+        overallCompletion:
+          type: number
+        subjectCompletion:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubjectCompletion"
+        classCompletion:
+          type: array
+          items:
+            $ref: "#/components/schemas/ClassCompletion"
+        weeklyProgress:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProgressPoint"
+        monthlyProgress:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProgressPoint"
+        topPendingChapters:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChapterWithContext"
+        recentlyCompletedChapters:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChapterWithContext"
+      required:
+        - overallCompletion
+        - subjectCompletion
+        - classCompletion
+        - weeklyProgress
+        - monthlyProgress
+        - topPendingChapters
+        - recentlyCompletedChapters
+
+    SubjectCompletion:
+      type: object
+      properties:
+        subjectId:
+          type: integer
+        subjectName:
+          type: string
+        className:
+          type: string
+        total:
+          type: integer
+        completed:
+          type: integer
+        percentage:
+          type: number
+      required:
+        - subjectId
+        - subjectName
+        - className
+        - total
+        - completed
+        - percentage
+
+    ClassCompletion:
+      type: object
+      properties:
+        classId:
+          type: integer
+        className:
+          type: string
+        total:
+          type: integer
+        completed:
+          type: integer
+        percentage:
+          type: number
+      required:
+        - classId
+        - className
+        - total
+        - completed
+        - percentage
+
+    ProgressPoint:
+      type: object
+      properties:
+        label:
+          type: string
+        completed:
+          type: integer
+      required:
+        - label
+        - completed
+
+    BackupData:
+      type: object
+      properties:
+        version:
+          type: string
+        exportedAt:
+          type: string
+        classes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Class"
+        subjects:
+          type: array
+          items:
+            $ref: "#/components/schemas/Subject"
+        chapters:
+          type: array
+          items:
+            $ref: "#/components/schemas/Chapter"
+        history:
+          type: array
+          items:
+            $ref: "#/components/schemas/HistoryEntry"
+        dailyProgress:
+          type: array
+          items:
+            $ref: "#/components/schemas/DailyProgressEntry"
+      required:
+        - version
+        - exportedAt
+        - classes
+        - subjects
+        - chapters
+        - history
+        - dailyProgress
+
+    DailyProgressEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+        completedToday:
+          type: integer
+      required:
+        - id
+        - date
+        - completedToday

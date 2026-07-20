@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "JEE Backlog Manager"
+version = "1.0.0"
+id = "artifacts/jee-backlog"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25837
+
+[services.development]
+run = "pnpm --filter @workspace/jee-backlog run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/jee-backlog", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/jee-backlog/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25837"
+BASE_PATH = "/"
