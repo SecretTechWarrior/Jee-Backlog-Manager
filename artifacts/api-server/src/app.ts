@@ -1,3 +1,4 @@
+import type { Request, Response } from "express";
 import express, { type Express } from "express";
 import cors from "cors";
 import { createRequire } from "node:module";
@@ -13,14 +14,14 @@ app.use(
   pinoHttp({
     logger,
     serializers: {
-      req(req) {
+      req(req: Request) {
         return {
           id: req.id,
           method: req.method,
           url: req.url?.split("?")[0],
         };
       },
-      res(res) {
+      res(res: Response) {
         return {
           statusCode: res.statusCode,
         };
