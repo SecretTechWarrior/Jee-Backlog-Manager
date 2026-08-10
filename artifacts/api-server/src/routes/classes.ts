@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@workspace/db";
 import {
   classesTable,
@@ -10,8 +10,11 @@ import { GetClassesResponse } from "@workspace/api-zod";
 
 const router: IRouter = Router();
 
-router.get("/classes", async (req, res): Promise<void> => {
-  const classes = await db.select().from(classesTable).orderBy(classesTable.id);
+router.get("/classes", async (req, res) => {
+  const classes = await db
+    .select()
+    .from(classesTable)
+    .orderBy(classesTable.id);
 
   const result = await Promise.all(
     classes.map(async (cls) => {
@@ -29,19 +32,25 @@ router.get("/classes", async (req, res): Promise<void> => {
             .where(eq(chaptersTable.subjectId, subject.id));
 
           const totalChapters = chapters.length;
+
           const completedChapters = chapters.filter(
-            (c) => c.remainingLectures === 0 && c.totalLectures > 0,
+            (chapter) =>
+              chapter.remainingLectures === 0 &&
+              chapter.totalLectures > 0,
           ).length;
+
           const totalLectures = chapters.reduce(
-            (sum, c) => sum + c.totalLectures,
+            (sum, chapter) => sum + chapter.totalLectures,
             0,
           );
+
           const completedLectures = chapters.reduce(
-            (sum, c) => sum + c.completedLectures,
+            (sum, chapter) => sum + chapter.completedLectures,
             0,
           );
+
           const remainingLectures = chapters.reduce(
-            (sum, c) => sum + c.remainingLectures,
+            (sum, chapter) => sum + chapter.remainingLectures,
             0,
           );
 
