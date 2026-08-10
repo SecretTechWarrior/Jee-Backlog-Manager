@@ -8,6 +8,14 @@ import { logger } from "./lib/logger";
 const require = createRequire(import.meta.url);
 const pinoHttp = require("pino-http");
 
+declare global {
+  namespace Express {
+    interface Request {
+      id: string;
+    }
+  }
+}
+
 const app: Express = express();
 
 app.use(
